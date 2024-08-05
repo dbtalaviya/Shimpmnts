@@ -32,10 +32,9 @@ const Home = () => {
   const fetchFileDetails = async (fileId) => {
     try {
       const response = await axios.post('/api/file/get', { id: fileId });
-      console.log(response);
+      // console.log(response.data.file);
       if (response.data.success) {
-
-        setSelectedFile(response.data);
+        setSelectedFile(response.data.file);
         console.log(selectedFile);
       } else {
         console.error('Failed to fetch file details:', response.data.message);
@@ -140,7 +139,7 @@ const Home = () => {
             <h2 className="text-lg font-semibold mb-2">File Details</h2>
             <p className="mb-2"><strong>Name:</strong> {selectedFile.name}</p>
             <p><strong>Content:</strong></p>
-            <pre className="bg-gray-100 p-2 border border-gray-300 rounded">{selectedFile.content}</pre>
+            <pre className=" font-white">{selectedFile.content}</pre>
           </div>
         ) : (
           <p>Select a file to see its details.</p>
