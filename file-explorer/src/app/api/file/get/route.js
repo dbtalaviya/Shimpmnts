@@ -7,7 +7,7 @@ export async function POST(req, res) {
     try {
         await dbConnect();
 
-        const file = await File.find({ _id: id });
+        const file = await File.findOne({ _id: id });
 
         return NextResponse.json({ success: true, file });
     } catch (error) {

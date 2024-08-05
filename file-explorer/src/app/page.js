@@ -16,8 +16,8 @@ const Home = () => {
       if (response.data.success) {
         setData(prevData => ({
           ...prevData,
-          folders: [...prevData.folders, ...response.data.folders],
-          files: [...prevData.files, ...response.data.files]
+          folders: response.data.folders,
+          files: response.data.files
         }));
         setShowFolders(true);
       } else {
@@ -31,9 +31,12 @@ const Home = () => {
   // Function to fetch file details
   const fetchFileDetails = async (fileId) => {
     try {
-      const response = await axios.post('/api/file/get', { fileId });
+      const response = await axios.post('/api/file/get', { id: fileId });
+      console.log(response);
       if (response.data.success) {
-        setSelectedFile(response.data.file);
+
+        setSelectedFile(response.data);
+        console.log(selectedFile);
       } else {
         console.error('Failed to fetch file details:', response.data.message);
       }
@@ -69,14 +72,14 @@ const Home = () => {
 
   useEffect(() => {
     if (!showFolders) {
-      fetchFolders(null); // Fetch root folders when the component mounts
+      fetchFolders(null);
     }
   }, [showFolders]);
 
   return (
-    <div className="flex">
+    <div className="flex h-screen">
       {/* Left Pane */}
-      <div className="flex-1 p-4 border-r border-gray-300">
+      <div className="flex-1 p-4 border-r border-gray-300 overflow-y-auto">
         <h1 className="text-xl font-bold mb-4">File Explorer</h1>
         {!showFolders ? (
           <button
@@ -100,9 +103,15 @@ const Home = () => {
                   {folder.name}
                   {expandedFolders[folder._id] && (
                     <ul className="list-none pl-4">
-                      {folder.child.map(child => (
-                        <li key={child.id} className="mb-1">
-                          {data.folders.find(f => f._id === child.id)?.name || `Folder ${child.id}`}
+                      {data.folders.filter(f => folder.child.includes(f._id)).map(subfolder => (
+                        <li key={subfolder._id} className="mb-1">
+                          <button
+                            className="text-blue-500 hover:underline mr-2"
+                            onClick={() => toggleFolder(subfolder._id)}
+                          >
+                            {expandedFolders[subfolder._id] ? '−' : '+'}
+                          </button>
+                          {subfolder.name}
                         </li>
                       ))}
                       {data.files.filter(file => file.parent === folder._id).map(file => (
@@ -124,7 +133,8 @@ const Home = () => {
         )}
       </div>
 
-      <div className="flex-2 p-4">
+      {/* Right Pane */}
+      <div className="flex-1 p-4 border-l border-gray-300">
         {selectedFile ? (
           <div>
             <h2 className="text-lg font-semibold mb-2">File Details</h2>
